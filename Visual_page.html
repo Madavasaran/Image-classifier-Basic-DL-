@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Classifier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary: #6366f1;
+      --background: #f9fafb;
+      --border: #e5e7eb;
+      --text: #111827;
+      --text-light: #6b7280;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 6px 25px rgba(0, 0, 0, 0.12);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      transition: var(--transition);
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1.8rem;
+    }
+
+    .description {
+      color: var(--text-light);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label[for="file-input"] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      box-shadow: 0 2px 10px rgba(79, 70, 229, 0.3);
+    }
+
+    label[for="file-input"]:hover {
+      background: var(--secondary);
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+      transform: translateY(-2px);
+    }
+
+    label[for="file-input"] svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+      margin-top: 1.5rem;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+      width: 100%;
+    }
+
+    button:hover {
+      background: var(--primary);
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+      transform: translateY(-2px);
+    }
+
+    button svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    button:disabled {
+      background: var(--border);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    #preview-container {
+      margin: 1.5rem 0;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #preview-image-container {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    #preview-image {
+      max-width: 100%;
+      max-height: 280px;
+      border-radius: var(--radius-sm);
+      margin-top: 10px;
+      box-shadow: var(--shadow);
+      display: block;
+      object-fit: contain;
+    }
+
+    #result {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      color: var(--primary);
+      font-weight: 600;
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      background-color: rgba(79, 70, 229, 0.05);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .file-info {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-top: -1rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Image Classifier</h2>
+    <p class="description">Upload an image to classify its content using AI</p>
+
+    <form id="upload-form" enctype="multipart/form-data">
+      <input type="file" name="file" id="file-input" accept="image/*" required>
+      <label for="file-input">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        Choose Image
+      </label>
+      
+      <div id="file-info" class="file-info"></div>
+
+      <div id="preview-container">
+        <div id="preview-image-container">
+          <img id="preview-image" src="#" alt="Preview">
+        </div>
+      </div>
+
+      <button type="submit" id="submit-btn">
+        <span id="submit-text">Analyze Image</span>
+        <span id="submit-loader" class="loading" style="display: none;"></span>
+      </button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const fileInput = document.getElementById('file-input');
+    const previewImage = document.getElementById('preview-image');
+    const previewContainer = document.getElementById('preview-container');
+    const resultDiv = document.getElementById('result');
+    const submitBtn = document.getElementById('submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const submitLoader = document.getElementById('submit-loader');
+    const fileInfo = document.getElementById('file-info');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          previewContainer.style.display = 'block';
+          fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewContainer.style.display = 'none';
+        fileInfo.textContent = '';
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const file = fileInput.files[0];
+      if (!file) {
+        resultDiv.innerText = "Please select an image file first.";
+        return;
+      }
+
+      // Show loading state
+      submitText.textContent = "Analyzing...";
+      submitLoader.style.display = 'inline-block';
+      submitBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('file', file);  // MUST be 'file' to match Flask
+
+      resultDiv.innerText = "";
+      resultDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        const prediction = await response.text();
+        resultDiv.innerText = "Prediction: " + prediction;
+        resultDiv.style.display = 'block';
+      } catch (err) {
+        resultDiv.innerText = "Error: " + err.message;
+        resultDiv.style.display = 'block';
+      } finally {
+        // Reset button state
+        submitText.textContent = "Analyze Image";
+        submitLoader.style.display = 'none';
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
