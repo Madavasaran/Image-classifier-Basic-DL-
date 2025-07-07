@@ -18,6 +18,7 @@ Users can upload an image, and the app classifies it using a pre-trained PyTorch
 
 ## 📁 Project Structure
 
+```bash
 Image-Classifier-App/
 │
 ├── app.py # Flask backend
@@ -25,8 +26,7 @@ Image-Classifier-App/
 │ └── index.html # UI frontend (styled with preview & prediction result)
 ├── uploads/ # Temporary folder for uploaded images
 └── README.md # Project documentation
-
-
+```
 ---
 
 ## ⚙️ Requirements
